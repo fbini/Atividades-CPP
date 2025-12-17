@@ -3,13 +3,15 @@
 #include <map>
 #include <vector>
 #include <fstream>
+#include <ctime>
+#include <cstdlib>
 
-const std::string PALAVRA_SECRETA = "LEONA" ;
+std::string palavra_secreta = "LEONA" ;
 std::map<char, bool> chutou;
 std::vector<char> chute_errado;
 
 bool letra_existe(char chute){
-    for (char letra : PALAVRA_SECRETA) {
+    for (char letra : palavra_secreta) {
        if (chute == letra){
             return true;
        }   
@@ -18,7 +20,7 @@ bool letra_existe(char chute){
 }
 
 bool nao_acertou(){
-    for(char letra : PALAVRA_SECRETA) {
+    for(char letra : palavra_secreta) {
         if (!chutou[letra]) {
             return true;
         } 
@@ -27,7 +29,7 @@ bool nao_acertou(){
 }
 
 bool nao_enforcou(){
-    return chute_errado.size() <= 5;
+    return chute_errado.size() < 5;
 }
 
 void imprime_cabecalho(){
@@ -47,11 +49,11 @@ void imprime_erros(){
 }
 
 void imprime_palavra(){
-    for (char letra : PALAVRA_SECRETA) {
+    for (char letra : palavra_secreta) {
         if (chutou[letra]) {
             std::cout << letra << " ";
         } else{
-            std::cout << "_";
+            std::cout << " _ ";
         }        
     }
     std::cout << std::endl;
@@ -74,27 +76,38 @@ void chuta(){
     std::cout << std::endl;
 }
 
-void le_arquivo(){
-    std::ifstream arquivo;
-    arquivo.open("palavras.txt");
-
-    int quatidade_palavras;
-    arquivo >> quantidade_palavras;
-
-    std::cout << "O arquivo possui " << quantidade_palavras << " palavras" << std::endl;
-
-    for (int i = 0; i < quantidade_palavras; i++) {
-       std::string palavra_lida;
-       arquivo >> palavra_lida;
-       std::cout << "Na linha " << i << " : " << palavra_lida << std::endl;
-    }
+    std::vector<std::string> le_arquivo(){
+        std::ifstream arquivo;
+        arquivo.open("palavras.txt");
     
+        int quantidade_palavras;
+        arquivo >> quantidade_palavras;
+    
+        std::vector<std::string> palavras_do_arquivo;
+    
+        for (int i = 0; i < quantidade_palavras; i++) {
+            std::string palavra_lida;
+            arquivo >> palavra_lida;
+            palavras_do_arquivo.push_back(palavra_lida); 
+    }
+    arquivo.close();
+    return palavras_do_arquivo;
+}
+
+void sorteia_palavra(){
+    std::vector<std::string> palavras = le_arquivo();
+
+    srand(time(NULL));
+    int indice_sorteado = rand() % palavras.size();
+
+    palavra_secreta = palavras[indice_sorteado];
+
 }
 
 // Utilizamos o "foreach" no lugar do for
 /*
-for (int i = 0; i < PALAVRA_SECRETA.size(); i++){
-       if (chute == PALAVRA_SECRETA[i]){
+for (int i = 0; i < palavra_secreta.size(); i++){
+       if (chute == palavra_secreta[i]){
             return true;
        }
     }
@@ -104,6 +117,7 @@ int main () {
     imprime_cabecalho();
 
     le_arquivo();
+    sorteia_palavra();
 
     while (nao_acertou() && nao_enforcou()){
         imprime_erros();
@@ -115,7 +129,7 @@ int main () {
     }
 
     std::cout << "Fim de jogo!" << std::endl;
-    std::cout << "A palavra secreta era: " << PALAVRA_SECRETA << std::endl;
+    std::cout << "A palavra secreta era: " << palavra_secreta << std::endl;
 
     if (nao_acertou()) {
         std::cout << "Você perdeu! Tente novamente! " << std::endl;
